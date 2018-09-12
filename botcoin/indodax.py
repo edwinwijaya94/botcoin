@@ -1,10 +1,11 @@
 import requests, time, urllib, hmac, hashlib, binascii, json
 from collections import namedtuple
+from .util import get_config
 
 def _get_signature(query):
-    key = b'49f84cbcf03154df10c5c2b06623c0ea343964ebc4c2b65cb2ea955a754ca11a86ef964720bb15e4'
+    secret = get_config()['indodax']['api_secret'].encode()
     message = urllib.parse.urlencode(query)
-    signature = hmac.new(key, message.encode('utf8'), hashlib.sha512).hexdigest()
+    signature = hmac.new(secret, message.encode('utf8'), hashlib.sha512).hexdigest()
     return signature
 
 def get_ticker(pair):
@@ -14,7 +15,7 @@ def get_ticker(pair):
 
 def get_info():
     nonce = int(time.time())
-    headers = {'key': 'K7VW3JUX-3SHFWP5V-FEKZPD0T-JN8VW8ME-RORZBQMH', 'sign': _get_signature({'method': 'getInfo', 'nonce': nonce})}
+    headers = {'key': get_config()['indodax']['api_key'], 'sign': _get_signature({'method': 'getInfo', 'nonce': nonce})}
     payload = {'method': 'getInfo', 'nonce': nonce}
     r = requests.post('https://indodax.com/tapi', headers=headers, data=payload)
     # replace reserved keywords
