@@ -1,3 +1,3 @@
-export FLASK_APP=cron
+export FLASK_APP=botcoin
 export FLASK_ENV=development
 flask run

@@ -28,5 +28,4 @@ def calc_assets():
     btc_amt = get_info().return_.balance.btc
     print("BTC amount: "+btc_amt)
     assets = float(btc_price) * float(btc_amt)
-    res = "BTC assets: IDR "+str(assets)
-    return res
+    return assets
