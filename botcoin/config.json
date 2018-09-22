@@ -1,6 +1,10 @@
 {
     "indodax":{
+        "host": "https://indodax.com",
         "api_key": "api_key",
         "api_secret": "api_secret"
+    },
+    "cron":{
+        "schedule": "1m"
     }
 }

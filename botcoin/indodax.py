@@ -1,6 +1,8 @@
-import requests, time, urllib, hmac, hashlib, binascii, json
-from collections import namedtuple
-from .util import get_config
+import requests, time, urllib, hmac, hashlib, binascii
+from .util import get_config, json_parse
+
+def _get_host():
+    return get_config()['indodax']['host']
 
 def _get_signature(query):
     secret = get_config()['indodax']['api_secret'].encode()
@@ -9,18 +11,18 @@ def _get_signature(query):
     return signature
 
 def get_ticker(pair):
-    r = requests.get('https://indodax.com/api/{pair}/ticker'.format(pair= pair))
-    res = json.loads(r.text, object_hook=lambda d: namedtuple('X', d.keys())(*d.values()))
+    r = requests.get('{host}/api/{pair}/ticker'.format(pair= pair, host=_get_host()))
+    res = json_parse(r.text)
     return res
 
 def get_info():
     nonce = int(time.time())
     headers = {'key': get_config()['indodax']['api_key'], 'sign': _get_signature({'method': 'getInfo', 'nonce': nonce})}
     payload = {'method': 'getInfo', 'nonce': nonce}
-    r = requests.post('https://indodax.com/tapi', headers=headers, data=payload)
+    r = requests.post('{host}/tapi'.format(host=_get_host()), headers=headers, data=payload)
     # replace reserved keywords
     r_ = r.text.replace('"return"', '"return_"')
-    res = json.loads(r_, object_hook=lambda d: namedtuple('X', d.keys())(*d.values()))
+    res = json_parse(r_)
     return res
 
 def calc_assets():

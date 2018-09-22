@@ -1,5 +1,5 @@
 import time
-from .util import init_redis
+from .util import parse_duration, get_config, init_redis
 from .indodax import calc_assets
 
 def init_cron():
@@ -10,7 +10,8 @@ def init_cron():
         if now < schedule:
             time.sleep(schedule - now)
         track_assets(r)
-        set_schedule(r, now+60)
+        schedule = parse_duration(get_config()["cron"]["schedule"])
+        set_schedule(r, now+schedule)
 
 def get_schedule(r):
     schedule = r.get('botcoin:cron:schedule')
