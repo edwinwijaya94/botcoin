@@ -21,6 +21,10 @@ def create_app(test_config=None):
     def history():
         return jsonify(get_transaction_history())
 
+    @app.route('/trade')
+    def trade():
+        return jsonify(trade_x('btc_idr', 'buy', 10000000, 50000))
+
     # init cron
     thread = threading.Thread(target=init_cron, args=())
     thread.start()
