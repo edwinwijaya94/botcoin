@@ -10,7 +10,7 @@ def init_cron():
         if now < schedule:
             time.sleep(schedule - now)
         track_assets(r)
-        schedule = parse_duration(get_config()["cron"]["schedule"])
+        schedule = parse_duration(get_config()['cron']['schedule'])
         set_schedule(r, now+schedule)
 
 def get_schedule(r):

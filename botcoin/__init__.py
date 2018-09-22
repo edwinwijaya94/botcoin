@@ -1,4 +1,5 @@
-from flask import Flask
+import threading
+from flask import Flask, jsonify
 from .indodax import *
 from .cron import init_cron
 
@@ -13,9 +14,16 @@ def create_app(test_config=None):
     # calculate assets
     @app.route('/assets')
     def assets():
-        return calc_assets()
+        return jsonify(calc_assets())
+
+    # trans history
+    @app.route('/history')
+    def history():
+        return jsonify(get_transaction_history())
 
     # init cron
-    init_cron()
+    thread = threading.Thread(target=init_cron, args=())
+    thread.start()
+    thread.join()
 
     return app
