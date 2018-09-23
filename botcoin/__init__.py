@@ -11,23 +11,25 @@ def create_app(test_config=None):
     def ping():
         return 'OK'
 
-    # calculate assets
     @app.route('/assets')
     def assets():
         return jsonify(calc_assets())
 
-    # trans history
-    @app.route('/history')
-    def history():
+    @app.route('/transaction/history')
+    def transaction_history():
         return jsonify(get_transaction_history())
 
     @app.route('/trade')
     def trade():
-        return jsonify(trade_x('btc_idr', 'buy', 10000000, 50000))
+        return jsonify(do_trade('btc_idr', 'buy', 10000000, 50000))
+
+    @app.route('/trade/history')
+    def trade_history():
+        return jsonify(get_trade_history('btc_idr'))
 
     # init cron
-    thread = threading.Thread(target=init_cron, args=())
-    thread.start()
-    thread.join()
+    thr = threading.Thread(target=init_cron, args=())
+    thr.start()
+    thr.join()
 
     return app

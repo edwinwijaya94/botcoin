@@ -40,10 +40,21 @@ def get_transaction_history():
     res = json.loads(r_)
     return res
 
-def trade_x(pair, action, price, amount):
+def do_trade(pair, action, price, amount):
     method = 'trade'
     nonce = int(time.time())
     payload = {'method': method, 'nonce': nonce, 'pair': pair, 'type': action, 'price': price, 'idr': amount}
+    headers = {'key': get_config()['indodax']['api_key'], 'sign': _get_signature(payload)}
+    r = requests.post(_get_tapi_url(), headers=headers, data=payload)
+    # replace reserved keywords
+    r_ = r.text.replace('"return"', '"return_"')
+    res = json.loads(r_)
+    return res
+
+def get_trade_history(pair):
+    method = 'tradeHistory'
+    nonce = int(time.time())
+    payload = {'method': method, 'nonce': nonce, 'pair': pair}
     headers = {'key': get_config()['indodax']['api_key'], 'sign': _get_signature(payload)}
     r = requests.post(_get_tapi_url(), headers=headers, data=payload)
     # replace reserved keywords
