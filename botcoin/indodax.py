@@ -62,6 +62,50 @@ def get_trade_history(pair):
     res = json.loads(r_)
     return res
 
+def get_open_orders(pair):
+    method = 'openOrders'
+    nonce = int(time.time())
+    payload = {'method': method, 'nonce': nonce, 'pair': pair}
+    headers = {'key': get_config()['indodax']['api_key'], 'sign': _get_signature(payload)}
+    r = requests.post(_get_tapi_url(), headers=headers, data=payload)
+    # replace reserved keywords
+    r_ = r.text.replace('"return"', '"return_"')
+    res = json.loads(r_)
+    return res
+
+def get_order_history(pair):
+    method = 'orderHistory'
+    nonce = int(time.time())
+    payload = {'method': method, 'nonce': nonce, 'pair': pair}
+    headers = {'key': get_config()['indodax']['api_key'], 'sign': _get_signature(payload)}
+    r = requests.post(_get_tapi_url(), headers=headers, data=payload)
+    # replace reserved keywords
+    r_ = r.text.replace('"return"', '"return_"')
+    res = json.loads(r_)
+    return res
+
+def get_order_detail(pair, id):
+    method = 'getOrder'
+    nonce = int(time.time())
+    payload = {'method': method, 'nonce': nonce, 'pair': pair, 'order_id': id}
+    headers = {'key': get_config()['indodax']['api_key'], 'sign': _get_signature(payload)}
+    r = requests.post(_get_tapi_url(), headers=headers, data=payload)
+    # replace reserved keywords
+    r_ = r.text.replace('"return"', '"return_"')
+    res = json.loads(r_)
+    return res
+
+def cancel_order(pair, id, action):
+    method = 'cancelOrder'
+    nonce = int(time.time())
+    payload = {'method': method, 'nonce': nonce, 'pair': pair, 'order_id': id, 'type': action}
+    headers = {'key': get_config()['indodax']['api_key'], 'sign': _get_signature(payload)}
+    r = requests.post(_get_tapi_url(), headers=headers, data=payload)
+    # replace reserved keywords
+    r_ = r.text.replace('"return"', '"return_"')
+    res = json.loads(r_)
+    return res
+
 def calc_assets():
     btc_price = get_ticker('btc_idr')['ticker']['last']
     print("BTC price: IDR "+btc_price)
