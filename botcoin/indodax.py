@@ -1,6 +1,7 @@
 import requests, time, urllib, hmac, hashlib, json
 from .util import get_config
 
+# helper functions
 def _get_host():
     return get_config()['indodax']['host']
 
@@ -13,11 +14,13 @@ def _get_signature(query):
     signature = hmac.new(secret, message.encode('utf8'), hashlib.sha512).hexdigest()
     return signature
 
+# public APIs
 def get_ticker(pair):
     r = requests.get('{host}/api/{pair}/ticker'.format(pair= pair, host=_get_host()))
     res = json.loads(r.text)
     return res
 
+# private APIs
 def get_info():
     method = 'getInfo'
     nonce = int(time.time())
@@ -106,10 +109,28 @@ def cancel_order(pair, id, action):
     res = json.loads(r_)
     return res
 
-def calc_assets():
-    btc_price = get_ticker('btc_idr')['ticker']['last']
-    print("BTC price: IDR "+btc_price)
-    btc_amt = get_info()['return_']['balance']['btc']
-    print("BTC amount: "+btc_amt)
-    assets = float(btc_price) * float(btc_amt)
+# calc functions
+def get_price(pair):
+    data = get_ticker(pair)
+    price = -1
+    if 'ticker' in data:
+        price = data['ticker']['last']
+    return float(price)
+
+def get_balance(currency):
+    data = get_info()
+    balance = -1
+    if 'return_' in data:
+        balance = data['return_']['balance'][currency]
+    return float(balance)
+
+def calc_assets(price, balance):
+    return price * balance
+
+def get_assets(pair):
+    assets = -1
+    price = get_price(pair)
+    balance = get_balance(pair.split('_')[0])
+    if price >= 0 and balance >=0:
+        assets = calc_assets(price, balance)
     return assets
