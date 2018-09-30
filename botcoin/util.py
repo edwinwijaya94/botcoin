@@ -1,5 +1,6 @@
 import redis, json
 from collections import namedtuple
+from inspect import currentframe, getframeinfo
 
 config = None
 
@@ -23,3 +24,9 @@ def parse_duration(d):
         return val*60
     elif time_unit == 'h':
         return val*60*60
+
+def debug(data):
+    frameinfo = getframeinfo(currentframe())
+    temp_dirs = frameinfo.filename.split('/')
+    filename = temp_dirs[len(temp_dirs)-1]
+    print('{filename}:{line}: {data}'.format(filename=filename, line=frameinfo.lineno, data=data))

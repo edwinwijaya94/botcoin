@@ -5,6 +5,15 @@
         "api_secret": "api_secret"
     },
     "cron":{
-        "schedule": "1m"
+        "schedule": "5s",
+        "price_count": 10
+    },
+    "algorithm": {
+        "sma": {
+            "price_multiplier": 0.05,
+            "amount_multiplier": 1,
+            "top_threshold": 0.05,
+            "bottom_threshold": 0.10 
+        }
     }
 }

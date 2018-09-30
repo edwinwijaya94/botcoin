@@ -108,29 +108,3 @@ def cancel_order(pair, id, action):
     r_ = r.text.replace('"return"', '"return_"')
     res = json.loads(r_)
     return res
-
-# calc functions
-def get_price(pair):
-    data = get_ticker(pair)
-    price = -1
-    if 'ticker' in data:
-        price = data['ticker']['last']
-    return float(price)
-
-def get_balance(currency):
-    data = get_info()
-    balance = -1
-    if 'return_' in data:
-        balance = data['return_']['balance'][currency]
-    return float(balance)
-
-def calc_assets(price, balance):
-    return price * balance
-
-def get_assets(pair):
-    assets = -1
-    price = get_price(pair)
-    balance = get_balance(pair.split('_')[0])
-    if price >= 0 and balance >=0:
-        assets = calc_assets(price, balance)
-    return assets

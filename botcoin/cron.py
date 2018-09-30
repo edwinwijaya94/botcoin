@@ -1,6 +1,7 @@
 import time
-from .util import parse_duration, get_config, init_redis
+from .util import parse_duration, get_config, init_redis, debug
 from .indodax import *
+from .action  import *
 from .const import *
 
 def init_cron():
@@ -30,14 +31,21 @@ def track_assets(r):
     balance = get_balance(pair.split('_')[0])
     if price >= 0 and balance >= 0 :
         assets = calc_assets(price, balance)
+        r.set(REDIS_ASSETS, assets)
 
         # store data
         redis_price_key = '{key}:{pair}'.format(key=REDIS_PRICE, pair=pair)
-        data = '{price}:{ts}'.format(price=price, ts=now)
-        r.zadd(redis_price_key, now, data)
-        r.set(REDIS_ASSETS, assets)
+        key = '{price}:{ts}'.format(price=price, ts=now)
+        r.zadd(redis_price_key, now, key)
+
+        # process data
+        data = r.zrange(redis_price_key, 0, -1, desc=False, withscores=True)
+        data = filter_data(data)
+        debug(data)
+        take_decision(pair, data, get_config()['algorithm']['sma'])
+
         # remove old data
-        count = r.zcount(redis_price_key, '-inf', '+inf')
+        count = r.zcard(redis_price_key)
         max_count = get_config()['cron']['price_count']
         if count > max_count:
             r.zremrangebyrank(redis_price_key, 0, count-max_count-1)
