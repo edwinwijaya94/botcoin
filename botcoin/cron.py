@@ -5,14 +5,7 @@ from .const import *
 
 def init_cron():
     r = init_redis()
-    # pair = 'hi'
-    # now = 1
-    # price = 10
-    # redis_price_key = '{key}:{pair}'.format(key=REDIS_PRICE, pair=pair)
-    # r.zadd(redis_price_key, now, price)
     while True:
-        redis_price_key = '{key}:{pair}'.format(key=REDIS_PRICE, pair='btc_idr')
-        r.zremrangebyrank(redis_price_key, 0, 0)
         now = int(time.time())
         schedule = get_schedule(r)
         if now < schedule:
@@ -40,11 +33,11 @@ def track_assets(r):
 
         # store data
         redis_price_key = '{key}:{pair}'.format(key=REDIS_PRICE, pair=pair)
-        print(redis_price_key, now, price)
-        r.zadd(redis_price_key, now, price)
+        data = '{price}:{ts}'.format(price=price, ts=now)
+        r.zadd(redis_price_key, now, data)
         r.set(REDIS_ASSETS, assets)
         # remove old data
         count = r.zcount(redis_price_key, '-inf', '+inf')
         max_count = get_config()['cron']['price_count']
-        # if count > max_count:
-        #     r.zremrangebyrank(redis_price_key, 0, 0)
+        if count > max_count:
+            r.zremrangebyrank(redis_price_key, 0, count-max_count-1)
